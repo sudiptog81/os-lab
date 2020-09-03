@@ -1,86 +1,86 @@
 /**
  * Write a program to implement FCFS scheduling algorithm.
- * 
+ *
  * Written by Sudipto Ghosh for the University of Delhi
  */
 
 #include <stdio.h>
 #include <stdlib.h>
+#define MAX_SIZE 100
 
-struct process
-{
+struct process {
   int pid;
-  int burstTime;
-  int arrivalTime;
-  int waitingTime;
-  int turnAroundTime;
+  double burstTime;
+  double arrivalTime;
+  double waitingTime;
+  double turnAroundTime;
 };
 
-void computeWaitingTime(struct process *processes, int processCount)
-{
-  processes[0].waitingTime = 0;
-  for (int i = 0; i < processCount - 1; i++)
-    processes[i + 1].waitingTime =
-        processes[i].burstTime +
-        processes[i].waitingTime;
+void computeWaitingTime(struct process *processes, int processCount) {
+  double completionTime = 0.0;
+  processes[0].waitingTime = 0.0;
+  for (int i = 1; i < processCount; i++) {
+    completionTime += processes[i - 1].burstTime;
+    processes[i].waitingTime = completionTime - processes[i].arrivalTime;
+  }
+  return;
 }
 
-void computeTurnAroundTime(struct process *processes, int processCount)
-{
+void computeTurnAroundTime(struct process *processes, int processCount) {
   for (int i = 0; i < processCount; i++)
     processes[i].turnAroundTime =
-        processes[i].burstTime +
-        processes[i].waitingTime -
-        processes[i].arrivalTime;
+        processes[i].burstTime + processes[i].waitingTime;
+  return;
 }
 
-void printAverageTimes(struct process *processes, int processCount)
-{
-  float totalWaitingTime = 0.0f;
-  float totalTurnAroundTime = 0.0f;
+void printAverageTimes(struct process *processes, int processCount,
+                       char *unit) {
+  double totalWaitingTime = 0.0;
+  double totalTurnAroundTime = 0.0;
+  double completionTimes[MAX_SIZE] = {0.0};
   computeWaitingTime(processes, processCount);
   computeTurnAroundTime(processes, processCount);
-  printf("Process ID\tBurst Time\tArrival Time\tWaiting Time\tTurn-Around Time\n");
+  printf(
+      "Process ID\tBurst Time\tArrival Time\tWaiting Time\tTurn-Around Time\n");
   printf("--------------------------------------------------------");
   printf("-------------------------\n");
-  for (int i = 0; i < processCount; i++)
-  {
+  for (int i = 0; i < processCount; i++) {
     totalWaitingTime += processes[i].waitingTime;
     totalTurnAroundTime += processes[i].turnAroundTime;
-    printf("%d\t\t%d\t\t%d\t\t%d\t\t%d\n",
-           processes[i].pid,
-           processes[i].burstTime,
-           processes[i].arrivalTime,
-           processes[i].waitingTime,
-           processes[i].turnAroundTime);
+    printf("%d\t\t%.2lf%s\t\t%.2lf%s\t\t%.2lf%s\t\t%.2lf%s\n", processes[i].pid,
+           processes[i].burstTime, unit, processes[i].arrivalTime, unit,
+           processes[i].waitingTime, unit, processes[i].turnAroundTime, unit);
   }
-  printf("\nAverage Waiting Time = %.2f",
-         totalWaitingTime / processCount);
-  printf("\nAverage Turn-Around time = %.2f\n",
-         totalTurnAroundTime / processCount);
+  printf("\nAverage Waiting Time = %.2lf%s", totalWaitingTime / processCount,
+         unit);
+  printf("\nAverage Turn-Around time = %.2lf%s\n",
+         totalTurnAroundTime / processCount, unit);
+  return;
 }
 
-int main(void)
-{
+int main(void) {
   int processCount;
+  char unit[4] = {'\0'};
+
+  printf("Enter Time Unit: ");
+  fgets(unit, 3, stdin);
 
   printf("Enter Number of Processes: ");
   scanf("%i", &processCount);
 
   struct process processes[processCount];
 
-  for (int i = 0; i < processCount; i++)
-  {
+  for (int i = 0; i < processCount; i++) {
     processes[i].pid = i + 1;
     printf("Burst Time for Process %i: ", i + 1);
-    scanf("%d", &processes[i].burstTime);
+    scanf("%lf", &processes[i].burstTime);
     printf("Arrival Time for Process %i: ", i + 1);
-    scanf("%d", &processes[i].arrivalTime);
+    scanf("%lf", &processes[i].arrivalTime);
   }
 
   printf("\n");
 
-  printAverageTimes(processes, processCount);
+  printAverageTimes(processes, processCount, unit);
 
   return 0;
 }
