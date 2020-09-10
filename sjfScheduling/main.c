@@ -16,52 +16,54 @@ struct process {
   double turnAroundTime;
 };
 
-void computeWaitingTime(struct process *processes, int processCount) {
-  double remainingTime[processCount];
-
-  for (int i = 0; i < processCount; i++)
-    remainingTime[i] = processes[i].burstTime;
-
-  double check = 0;
-  double min = INT_MAX;
-  double completionTime, time = 0;
-  int complete = 0, shortest = 0;
-
-  while (complete != processCount) {
-    for (int j = 0; j < processCount; j++) {
-      if ((processes[j].arrivalTime <= time) && (remainingTime[j] < min) &&
-          remainingTime[j] > 0) {
-        min = remainingTime[j];
-        shortest = j;
-        check = 1;
+void sortByArrivalTime(struct process *processes, int processCount) {
+  struct process temp;
+  int i, j, n = processCount;
+  for (i = 0; i < n; i++)
+    for (j = 0; j < n; j++)
+      if (processes[i].arrivalTime < processes[j].arrivalTime) {
+        temp = processes[j];
+        processes[j] = processes[i];
+        processes[i] = temp;
       }
-    }
+}
 
-    if (check == 0) {
-      time++;
-      continue;
-    }
+void sortForSJF(struct process *processes, int processCount) {
+  struct process temp;
+  double min, startTime = 0.0;
+  int i, j, k = 1, n = processCount;
+  for (j = 0; j < n; j++) {
+    startTime += processes[j].burstTime;
+    min = processes[k].burstTime;
+    for (i = k; i < n; i++)
+      if (startTime >= processes[i].arrivalTime &&
+          processes[i].burstTime < min) {
+        temp = processes[k];
+        processes[k] = processes[i];
+        processes[i] = temp;
+      }
+    k++;
+  }
+}
 
-    remainingTime[shortest]--;
+void sortByPID(struct process *processes, int processCount) {
+  struct process temp;
+  int i, j, n = processCount;
+  for (i = 0; i < n; i++)
+    for (j = 0; j < n; j++)
+      if (processes[i].pid < processes[j].pid) {
+        temp = processes[j];
+        processes[j] = processes[i];
+        processes[i] = temp;
+      }
+}
 
-    min = remainingTime[shortest];
-    if (min == 0)
-      min = INT_MAX;
-
-    if (remainingTime[shortest] == 0) {
-      complete++;
-      check = 0;
-      completionTime = time + 1;
-
-      processes[shortest].waitingTime = completionTime -
-                                        processes[shortest].burstTime -
-                                        processes[shortest].arrivalTime;
-
-      if (processes[shortest].burstTime < 0)
-        processes[shortest].burstTime = 0;
-    }
-
-    time++;
+void computeWaitingTime(struct process *processes, int processCount) {
+  double startTime = 0.0;
+  processes[0].waitingTime = 0;
+  for (int i = 1; i < processCount; i++) {
+    startTime += processes[i - 1].burstTime;
+    processes[i].waitingTime = startTime - processes[i].arrivalTime;
   }
 }
 
@@ -75,8 +77,11 @@ void printAverageTimes(struct process *processes, int processCount,
                        char *unit) {
   double totalWaitingTime = 0.0;
   double totalTurnAroundTime = 0.0;
+  sortByArrivalTime(processes, processCount);
+  sortForSJF(processes, processCount);
   computeWaitingTime(processes, processCount);
   computeTurnAroundTime(processes, processCount);
+  sortByPID(processes, processCount);
   printf(
       "Process ID\tBurst Time\tArrival Time\tWaiting Time\tTurn-Around Time\n");
   printf("--------------------------------------------------------");

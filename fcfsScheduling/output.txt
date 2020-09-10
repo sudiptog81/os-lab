@@ -1,23 +1,5 @@
 Enter Time Unit: ms
 Enter Number of Processes: 3
-Burst Time for Process 1: 8  
-Arrival Time for Process 1: 0
-Burst Time for Process 2: 4 
-Arrival Time for Process 2: 0.4
-Burst Time for Process 3: 1
-Arrival Time for Process 3: 1
-gitpod /workspace/os-lab/fcfsScheduling $ gcc -o main main.c && ./main
-Enter Time Unit: ms
-Enter Number of Processes: 3
-Burst Time for Process 1: 8
-Arrival Time for Process 1: 0
-Burst Time for Process 2: 4
-Arrival Time for Process 2: 0.4
-Burst Time for Process 3: 1
-Arrival Time for Process 3: 1
-gitpod /workspace/os-lab/fcfsScheduling $ gcc -o main main.c && ./main
-Enter Time Unit: ms
-Enter Number of Processes: 3
 Burst Time for Process 1: 8
 Arrival Time for Process 1: 0
 Burst Time for Process 2: 4
