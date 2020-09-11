@@ -1,0 +1,17 @@
+Enter Time Unit: ms
+Enter Number of Processes: 3
+Burst Time for Process 1: 8
+Arrival Time for Process 1: 0
+Burst Time for Process 2: 4
+Arrival Time for Process 2: 0.4
+Burst Time for Process 3: 1
+Arrival Time for Process 3: 1
+
+Process ID      Burst Time      Arrival Time    Waiting Time    Turn-Around Time
+---------------------------------------------------------------------------------
+1               8.00ms          0.00ms          0.00ms          8.00ms
+2               4.00ms          0.40ms          8.60ms          12.60ms
+3               1.00ms          1.00ms          7.00ms          8.00ms
+
+Average Waiting Time = 5.20ms
+Average Turn-Around time = 9.53ms

@@ -1,12 +1,12 @@
 /**
- * Write a program to implement FCFS scheduling algorithm.
+ * Write a program to implement SRTF scheduling algorithm.
  *
  * Written by Sudipto Ghosh for the University of Delhi
  */
 
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
-#define MAX_SIZE 100
 
 struct process {
   int pid;
@@ -28,6 +28,24 @@ void sortByArrivalTime(struct process *processes, int processCount) {
       }
 }
 
+void sortForSJF(struct process *processes, int processCount) {
+  struct process temp;
+  double min, startTime = 0.0;
+  int i, j, k = 1, n = processCount;
+  for (j = 0; j < n; j++) {
+    startTime += processes[j].burstTime;
+    min = processes[k].burstTime;
+    for (i = k; i < n; i++)
+      if (startTime >= processes[i].arrivalTime &&
+          processes[i].burstTime < min) {
+        temp = processes[k];
+        processes[k] = processes[i];
+        processes[i] = temp;
+      }
+    k++;
+  }
+}
+
 void sortByPID(struct process *processes, int processCount) {
   struct process temp;
   int i, j, n = processCount;
@@ -41,31 +59,58 @@ void sortByPID(struct process *processes, int processCount) {
 }
 
 void computeWaitingTime(struct process *processes, int processCount) {
-  double completionTime = 0.0;
-  processes[0].waitingTime = 0.0;
+  double startTime = 0.0;
+  processes[0].waitingTime = 0;
   for (int i = 1; i < processCount; i++) {
-    completionTime += processes[i - 1].burstTime;
-    processes[i].waitingTime = completionTime - processes[i].arrivalTime;
+    startTime += processes[i - 1].burstTime;
+    processes[i].waitingTime = startTime - processes[i].arrivalTime;
   }
-  return;
 }
 
 void computeTurnAroundTime(struct process *processes, int processCount) {
   for (int i = 0; i < processCount; i++)
     processes[i].turnAroundTime =
         processes[i].burstTime + processes[i].waitingTime;
-  return;
 }
 
 void printAverageTimes(struct process *processes, int processCount,
                        char *unit) {
+  double end;
+  int smallest, count = 0;
   double totalWaitingTime = 0.0;
   double totalTurnAroundTime = 0.0;
-  double completionTimes[MAX_SIZE] = {0.0};
-  sortByArrivalTime(processes, processCount);
-  computeWaitingTime(processes, processCount);
-  computeTurnAroundTime(processes, processCount);
-  sortByPID(processes, processCount);
+  struct process temp[processCount + 1];
+
+  //   sortByArrivalTime(processes, processCount);
+  //   sortForSJF(processes, processCount);
+  //   computeWaitingTime(processes, processCount);
+  //   computeTurnAroundTime(processes, processCount);
+  //   sortByPID(processes, processCount);
+
+  for (int i = 0; i < processCount; i++)
+    temp[i] = processes[i];
+
+  smallest = processCount + 1;
+  temp[smallest].burstTime = 999;
+  for (double time = 0; count != processCount; time++) {
+    printf("%lf %d", time, count);
+    for (int i = 0; i < processCount; i++) {
+      if (processes[i].arrivalTime <= time &&
+          processes[i].burstTime < temp[smallest].burstTime &&
+          processes[i].burstTime > 0) {
+        smallest = i;
+      }
+    }
+    temp[smallest].burstTime--;
+    if (temp[smallest].burstTime == 0) {
+      count++;
+      end = time + 1;
+      processes[count].waitingTime +=
+          end - processes[smallest].arrivalTime - temp[smallest].burstTime;
+      processes[count].turnAroundTime += end - processes[smallest].arrivalTime;
+    }
+  }
+
   printf(
       "Process ID\tBurst Time\tArrival Time\tWaiting Time\tTurn-Around Time\n");
   printf("--------------------------------------------------------");
