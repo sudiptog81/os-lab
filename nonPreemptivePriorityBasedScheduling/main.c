@@ -11,11 +11,11 @@
 struct process
 {
   int pid;
-  int priority;
-  int burstTime;
-  int arrivalTime;
-  int waitingTime;
-  int turnAroundTime;
+  double priority;
+  double burstTime;
+  double arrivalTime;
+  double waitingTime;
+  double turnAroundTime;
 };
 
 int comparisonDesc(const void *a, const void *b)
@@ -35,7 +35,9 @@ void computeWaitingTime(struct process *processes, int processCount)
   for (int i = 0; i < processCount - 1; i++)
     processes[i + 1].waitingTime =
         processes[i].burstTime +
-        processes[i].waitingTime;
+        processes[i].waitingTime -
+        processes[i].arrivalTime;
+  return;
 }
 
 void computeTurnAroundTime(struct process *processes, int processCount)
@@ -43,14 +45,16 @@ void computeTurnAroundTime(struct process *processes, int processCount)
   for (int i = 0; i < processCount; i++)
     processes[i].turnAroundTime =
         processes[i].burstTime +
-        processes[i].waitingTime;
+        processes[i].waitingTime -
+        processes[i].arrivalTime;
   qsort(processes, processCount, sizeof(struct process), comparisonAsc);
+  return;
 }
 
-void printAverageTimes(struct process *processes, int processCount)
+void printAverageTimes(struct process *processes, int processCount, char *unit)
 {
-  float totalWaitingTime = 0.0f;
-  float totalTurnAroundTime = 0.0f;
+  double totalWaitingTime = 0.0;
+  double totalTurnAroundTime = 0.0;
   computeWaitingTime(processes, processCount);
   computeTurnAroundTime(processes, processCount);
   printf("Process ID\tPriority\tBurst Time\tArrival Time\tWaiting Time\tTurn-Around Time\n");
@@ -60,23 +64,25 @@ void printAverageTimes(struct process *processes, int processCount)
   {
     totalWaitingTime += processes[i].waitingTime;
     totalTurnAroundTime += processes[i].turnAroundTime;
-    printf("%d\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n",
-           processes[i].pid,
-           processes[i].priority,
-           processes[i].burstTime,
-           processes[i].arrivalTime,
-           processes[i].waitingTime,
-           processes[i].turnAroundTime);
+    printf("%d\t\t%.2lf\t\t%.2lf%s\t\t%.2lf%s\t\t%.2lf%s\t\t%.2lf%s\n",
+           processes[i].pid, processes[i].priority,
+           processes[i].burstTime, unit, processes[i].arrivalTime, unit,
+           processes[i].waitingTime, unit, processes[i].turnAroundTime, unit);
   }
-  printf("\nAverage Waiting Time = %.2f",
-         totalWaitingTime / processCount);
-  printf("\nAverage Turn-Around time = %.2f\n",
-         totalTurnAroundTime / processCount);
+  printf("\nAverage Waiting Time = %.2lf%s", totalWaitingTime / processCount,
+         unit);
+  printf("\nAverage Turn-Around time = %.2lf%s\n",
+         totalTurnAroundTime / processCount, unit);
+  return;
 }
 
 int main(void)
 {
   int processCount;
+  char unit[4] = {'\0'};
+
+  printf("Enter Time Unit: ");
+  fgets(unit, 3, stdin);
 
   printf("Enter Number of Processes: ");
   scanf("%i", &processCount);
@@ -87,16 +93,16 @@ int main(void)
   {
     processes[i].pid = i + 1;
     printf("Burst Time for Process %i: ", i + 1);
-    scanf("%d", &processes[i].burstTime);
+    scanf("%lf", &processes[i].burstTime);
     printf("Arrival Time for Process %i: ", i + 1);
-    scanf("%d", &processes[i].arrivalTime);
+    scanf("%lf", &processes[i].arrivalTime);
     printf("Priority for Process %i: ", i + 1);
-    scanf("%d", &processes[i].priority);
+    scanf("%lf", &processes[i].priority);
   }
 
   printf("\n");
 
-  printAverageTimes(processes, processCount);
+  printAverageTimes(processes, processCount, unit);
 
   return 0;
 }
